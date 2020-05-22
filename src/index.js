@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Route, withRouter } from 'react-router-dom';
 import './index.css';
 import PlantQuiz from './PlantQuiz.js';
 import * as serviceWorker from './serviceWorker';
 import { shuffle, sample } from 'underscore';
+import AddPlantForm from './AddPlantForm.js'
 
 const plants = [
     {
@@ -67,11 +69,15 @@ function getTurnData(plants) {
     };
 }
 
-const state = {
-    turnData: getTurnData(plants),
-    highlight: '',
-    onAnswerSelected
-};
+function resetState() {
+    return ({
+        turnData: getTurnData(plants),
+        highlight: '',
+    });
+
+}
+
+let state = resetState();
 
 function onAnswerSelected(answer) {
     const isCorrect = state.turnData.plant.plantList.some((plantName) => plantName === answer);
@@ -79,11 +85,37 @@ function onAnswerSelected(answer) {
     render(); //render the page again
 }
 
+//create a wrapper to be able to pass "onAddPlant" prop thru a Route
+//withRouter lets you navigate to another page by pushing a new path onto history
+const PlantWrapper = withRouter(({ history }) => {
+    return <AddPlantForm onAddPlant={(plant) => {
+        plants.push(plant);
+        history.push('/');
+    }} />;
+
+});
+
+
 function render() {
     ReactDOM.render(
-        <PlantQuiz {...state} />,
+        <BrowserRouter>
+            <React.Fragment>
+                <Route exact path="/" component={App} />
+                <Route path="/add" component={PlantWrapper} />
+            </React.Fragment>
+        </BrowserRouter>,
         document.getElementById('root')
     );
+}
+
+function App() {
+    return (<PlantQuiz {...state}
+        onAnswerSelected={onAnswerSelected}
+        onContinue={() => {
+            state = resetState();
+            render();
+        }}
+    />);
 }
 
 render();

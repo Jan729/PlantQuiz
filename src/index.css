@@ -10457,3 +10457,22 @@ a.text-dark:focus, a.text-dark:hover {
     .guess:hover {
         background-color: #D0E3F0;
     }
+
+.AddPlantForm {
+    width: 80%;
+    margin: 50px 10%;
+   
+}
+
+.AddPlantForm_input {
+    margin-bottom: 20px;
+}
+
+.AddPlantForm_input > label {
+    display: block;
+}
+
+.continue {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
