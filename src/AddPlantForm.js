@@ -1,6 +1,7 @@
 import React from 'react';
 import './index.css';
-
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 //bug: missing 'require()' method when adding new image path
 
@@ -50,11 +51,11 @@ class PlantForm extends React.Component {
                         value={this.state.name}
                         onChange={this.onFieldChange} />
 
-                    <label htmlFor="imgURL">Image URL</label>
+                    <label htmlFor="imgPath">Image URL</label>
                     <input
                         type="text"
-                        name="imgURL"
-                        value={this.state.imgURL}
+                        name="imgPath"
+                        value={this.state.imgPath}
                         onChange={this.onFieldChange} />
 
                     <label htmlFor="plantTemp">Plants</label>
@@ -77,11 +78,24 @@ class PlantForm extends React.Component {
 
 //higher level Add Plant page
 //match contains info about the object(?)
-export default function AddPlantForm({ match, onAddPlant}) {
+function AddPlantForm({ match, onAddPlant}) {
     return (<div className="AddPlantForm">
         <h1>Add Plant</h1>
         <PlantForm onAddPlant={onAddPlant}/>
-
     </div>
     );
 }
+
+function mapDispatchToProps(dispatch, props) {
+    return {
+        onAddPlant: (plant) => {
+            dispatch({ type: 'ADD_PLANT', plant });
+            props.history.push('/'); //go to main quiz page
+        }
+    }
+}
+
+//addPlantForm doesn't need any data from store, so leave mapStateToProps param blank
+//wrap plantForm with connect
+//wrap connect with withRouter to give plantForm a history component
+export default withRouter(connect(() => { }, mapDispatchToProps) (AddPlantForm));

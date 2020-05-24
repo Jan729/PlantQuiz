@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 function Title() {
     return (
@@ -13,7 +14,7 @@ function Title() {
     );
 }
 
-function Turn({ plant, plantChoices, highlight, onAnswerSelected }) {
+function Turn({ plant, plantChoices, onAnswerSelected, highlight }) {
 
     //map values of highlight to appropriate colour
     function highlightToBgColor(highlight) {
@@ -26,39 +27,37 @@ function Turn({ plant, plantChoices, highlight, onAnswerSelected }) {
         return mapping[highlight];
     }
 
-    //prop validation. check if your parameters were correctly passed in
-    Turn.propTypes = {
-        plant: PropTypes.shape({
-            name: PropTypes.string.isRequired,
-            imgPath: PropTypes.string.isRequired,
-            imgSource: PropTypes.string.isRequired,
-            plantList: PropTypes.arrayOf(PropTypes.string).isRequired
-        }),
-
-        plantChoices: PropTypes.arrayOf(PropTypes.string).isRequired,
-        onAnswerSelected: PropTypes.func.isRequired,
-        higlight: PropTypes.string.isRequired
-    };
-
     return (
         <div className="row turn" style={{ backgroundColor: highlightToBgColor(highlight) }}>
             <div className="col-4 offset-1">
                 <img src={plant.imgPath} className="plantimage" alt="Plant" />
             </div>
             <div className="col-6">
-                {plantChoices.map((guess) => <PlantGuess plantName={guess} key={guess} onClick={onAnswerSelected} />)}
+                {plantChoices.map((plantName) => <PlantAnswer plantName={plantName} key={plantName} onClick={onAnswerSelected} />)}
                 {/*bootstrap 6 columns on the right, 4 cols on the left
                  make sure your keys are unique among each array*/}
             </div>
         </div>
     );
-
 }
 
-function PlantGuess(props) {
+//prop validation. check if your parameters were correctly passed in
+Turn.propTypes = {
+    plant: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        imgPath: PropTypes.string.isRequired,
+        imgSource: PropTypes.string.isRequired,
+        plantList: PropTypes.arrayOf(PropTypes.string).isRequired
+    }),
+    onAnswerSelected: PropTypes.func.isRequired,
+    plantChoices: PropTypes.arrayOf(PropTypes.string).isRequired,
+    higlight: PropTypes.string.isRequired
+};
+
+function PlantAnswer(props) {
     return (
 
-        <div className="guess" onClick={() => { props.onClick(props.plantName) }}>
+        <div className="answer" onClick={() => { props.onClick(props.plantName) }}>
             <h4>{props.plantName}</h4>
         </div>
     );
@@ -81,22 +80,43 @@ function Continue({ show, onContinue }) {
 function Footer() {
     return (
         <div id="footer" className="row">
-            {/* <p className="text-muted credit">Image source: Google images
-            </p> */}
+           <p className="text-muted credit">Disclaimer: I do not own these images. See source code for references.
+            </p>
         </div>);
 }
 
-function PlantQuiz({ turnData, highlight, onAnswerSelected, onContinue }) {
-
-    return (
-        <div className="container-fluid">
-            <Title />
-            <Turn {...turnData} highlight={highlight} onAnswerSelected={onAnswerSelected} />
-            <Continue show={highlight === 'correct'} onContinue={onContinue} />
-            <p><Link to="/add">Add a plant</Link></p>
-            <Footer />
-        </div>
-    );
+//give the turnData and highlight data to PlantQuiz
+function mapStateToProps(state) {
+    return {
+        turnData: state.turnData,
+        highlight: state.highlight
+    };
 }
+
+//when user selects an answer on the PlantQuiz, dispatch the 'ANSWER SELECTED' action to the store
+function mapDispatchToProps(dispatch) {
+    return {
+        onAnswerSelected: (answer) => {
+            dispatch({ type: 'ANSWER_SELECTED', answer });
+        },
+        onContinue: () => {
+            dispatch({ type: 'CONTINUE' });
+        }
+    };
+}
+
+const PlantQuiz = connect(mapStateToProps, mapDispatchToProps)( //connect component to store
+    function ({ turnData, highlight, onAnswerSelected, onContinue }) { // connect()'s return fxn needs a param that's ALSO a fxn
+
+        return (
+            <div className="container-fluid">
+                <Title />
+                <Turn {...turnData} highlight={highlight} onAnswerSelected={onAnswerSelected}/>
+                <Continue show={highlight === 'correct'} onContinue={onContinue} />
+                <p><Link to="/add">Add a plant</Link></p>
+                <Footer />
+            </div>
+        );
+    });
 
 export default PlantQuiz;
