@@ -1,3 +1,7 @@
+Multiple choice plant quiz. Guess the fruit that grows from each plant.
+
+This quiz was inspired by Liam McLennan's code demo "Author Quiz" from the Pluralsight tutorial "React Fundamentals".
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
